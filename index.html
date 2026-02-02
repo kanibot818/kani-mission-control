@@ -239,15 +239,18 @@
                     card.className = `card p-5 relative group ${isStale && issue.state !== 'closed' ? 'stale-task' : ''} cursor-move`;
                     
                     // Label mapping to Morandi colors
-                    const labelHtml = issue.labels.map(l => {
-                        let dotColor = '#d1d5db';
-                        if (l.name === 'in-progress') dotColor = '#9eadba';
-                        if (issue.state === 'closed') dotColor = '#a8b5a2';
-                        return `<span class="inline-flex items-center mr-2 text-[10px] text-gray-500 font-medium">
-                            <span class="w-1.5 h-1.5 rounded-full mr-1" style="background-color: ${dotColor}"></span>
-                            ${l.name}
-                        </span>`;
-                    }).join('') || `<span class="inline-flex items-center text-[10px] text-gray-400"><span class="w-1.5 h-1.5 rounded-full bg-gray-200 mr-1"></span>Task</span>`;
+                    const labelHtml = issue.labels
+                        .filter(l => issue.state === 'closed' ? l.name !== 'in-progress' : true) // Done 欄位不顯示 in-progress
+                        .map(l => {
+                            let dotColor = '#d1d5db';
+                            if (l.name === 'in-progress') dotColor = '#9eadba';
+                            return `<span class="inline-flex items-center mr-2 text-[10px] text-gray-500 font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full mr-1" style="background-color: ${dotColor}"></span>
+                                ${l.name}
+                            </span>`;
+                        }).join('') || (issue.state === 'closed' ? '' : `<span class="inline-flex items-center text-[10px] text-gray-400"><span class="w-1.5 h-1.5 rounded-full bg-gray-200 mr-1"></span>Task</span>`);
+
+                    const doneTag = issue.state === 'closed' ? `<span class="inline-flex items-center mr-2 text-[10px] text-[#a8b5a2] font-semibold"><i class="fas fa-check-circle mr-1"></i>COMPLETED</span>` : '';
 
                     card.innerHTML = `
                         ${staleHtml}
@@ -257,6 +260,7 @@
                         </div>
                         <div class="text-sm font-medium text-gray-700 leading-snug mb-3">${issue.title}</div>
                         <div class="flex flex-wrap items-center">
+                            ${doneTag}
                             ${labelHtml}
                         </div>
                         ${progressHtml}
