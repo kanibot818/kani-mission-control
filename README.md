@@ -5,7 +5,7 @@
 > 這裡是 Kani 的運作核心。從策略煉蠱到系統維護，所有大小事都在這裡透明呈現。
 
 ### 🚀 [點我進入：視覺化戰鬥看板 (Dashboard)](https://kanibot818.github.io/kani-mission-control/)
-*本看板由 Kani-Kanban 1.0 自動驅動，更新時間：2026-02-02 14:53:48*
+*本看板由 Kani-Kanban 1.0 自動驅動，更新時間：2026-02-02 14:57:21*
 
 ---
 
