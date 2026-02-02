@@ -13,6 +13,10 @@
         .tech-font { font-family: 'Orbitron', sans-serif; }
         .card { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; }
         .glow { box-shadow: 0 0 15px rgba(56, 139, 253, 0.3); }
+        .wip-limit-exceeded { border: 2px solid #f85149 !important; background-color: rgba(248, 81, 73, 0.05); }
+        .stale-task { border-left: 4px solid #d29922 !important; }
+        .progress-bar { height: 4px; background: #30363d; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #388bfd; transition: width 0.3s ease; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -67,10 +71,13 @@
             </div>
             <!-- DOING -->
             <div>
-                <h2 class="text-xl font-bold mb-4 flex items-center text-blue-400">
-                    <span class="w-3 h-3 bg-blue-400 rounded-full mr-2"></span> IN PROGRESS
+                <h2 class="text-xl font-bold mb-4 flex justify-between items-center text-blue-400">
+                    <span class="flex items-center">
+                        <span class="w-3 h-3 bg-blue-400 rounded-full mr-2"></span> IN PROGRESS
+                    </span>
+                    <span id="wip-status" class="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-400">WIP: 0/3</span>
                 </h2>
-                <div id="doing-list" class="space-y-4 min-h-[200px] pb-20">
+                <div id="doing-list" class="space-y-4 min-h-[200px] pb-20 p-2 rounded transition-all">
                     <!-- Cards here -->
                 </div>
             </div>
@@ -168,25 +175,49 @@
                 Object.values(lists).forEach(l => l.innerHTML = '');
                 
                 let counts = { todo: 0, doing: 0, done: 0 };
-                document.getElementById('update-time').innerText = 'LAST UPDATE: ' + new Date().toLocaleString();
+                const WIP_LIMIT = 3;
+                const now = new Date();
 
                 issues.forEach(issue => {
-                    if (issue.pull_request) return; // Skip PRs
+                    if (issue.pull_request) return; 
+
+                    // 1. Parse Checklist Progress
+                    const tasks = issue.body ? issue.body.match(/\[[ xX]\]/g) || [] : [];
+                    const completed = tasks.filter(t => t.toLowerCase() === '[x]').length;
+                    const progress = tasks.length > 0 ? (completed / tasks.length) * 100 : 0;
+                    const progressHtml = tasks.length > 0 ? `
+                        <div class="mt-3">
+                            <div class="flex justify-between text-[10px] text-gray-500 mb-1">
+                                <span>Checklist</span>
+                                <span>${completed}/${tasks.length}</span>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                        </div>
+                    ` : '';
+
+                    // 2. Check Stagnation (24h)
+                    const lastUpdate = new Date(issue.updated_at);
+                    const isStale = (now - lastUpdate) > 24 * 60 * 60 * 1000;
+                    const staleHtml = isStale && issue.state !== 'closed' ? `
+                        <div class="absolute -top-2 -right-2 bg-yellow-600 text-white text-[10px] px-1.5 py-0.5 rounded-full shadow-lg" title="Stale for >24h">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                    ` : '';
 
                     const card = document.createElement('div');
                     card.setAttribute('data-id', issue.number);
-                    card.className = 'card p-4 hover:border-blue-500 transition-colors cursor-move relative group';
+                    card.className = `card p-4 hover:border-blue-500 transition-colors cursor-move relative group ${isStale && issue.state !== 'closed' ? 'stale-task' : ''}`;
                     card.innerHTML = `
+                        ${staleHtml}
                         <div class="text-xs text-gray-500 mb-1 flex justify-between">
                             <span>#${issue.number}</span>
                             <i class="fas fa-grip-vertical opacity-0 group-hover:opacity-100 transition-opacity"></i>
                         </div>
                         <div class="font-medium mb-2">${issue.title}</div>
-                        <div class="flex items-center text-[10px] uppercase tracking-tighter">
-                            <span class="px-2 py-0.5 rounded-full bg-gray-800 text-gray-300">
-                                ${issue.labels.map(l => l.name).join(', ') || 'Task'}
-                            </span>
+                        <div class="flex items-center text-[10px] uppercase tracking-tighter gap-1">
+                            ${issue.labels.map(l => `<span class="px-2 py-0.5 rounded-full bg-gray-800 text-gray-300" style="border: 1px solid #${l.color}44">${l.name}</span>`).join('') || '<span class="px-2 py-0.5 rounded-full bg-gray-800 text-gray-300">Task</span>'}
                         </div>
+                        ${progressHtml}
                     `;
                     
                     if (issue.state === 'closed') {
@@ -201,6 +232,17 @@
                     }
                 });
                 
+                // 3. WIP Limit Logic
+                const wipStatus = document.getElementById('wip-status');
+                wipStatus.innerText = `WIP: ${counts.doing}/${WIP_LIMIT}`;
+                if (counts.doing > WIP_LIMIT) {
+                    wipStatus.className = 'text-xs bg-red-900/50 px-2 py-0.5 rounded text-red-400 font-bold glow';
+                    lists.doing.classList.add('wip-limit-exceeded');
+                } else {
+                    wipStatus.className = 'text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-400';
+                    lists.doing.classList.remove('wip-limit-exceeded');
+                }
+
                 document.getElementById('done-count').innerText = counts.done;
                 document.getElementById('doing-count').innerText = counts.doing;
                 
