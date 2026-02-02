@@ -8,99 +8,115 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-        body { background-color: #0d1117; color: #c9d1d9; }
-        .tech-font { font-family: 'Orbitron', sans-serif; }
-        .card { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; }
-        .glow { box-shadow: 0 0 15px rgba(56, 139, 253, 0.3); }
-        .wip-limit-exceeded { border: 2px solid #f85149 !important; background-color: rgba(248, 81, 73, 0.05); }
-        .stale-task { border-left: 4px solid #d29922 !important; }
-        .progress-bar { height: 4px; background: #30363d; border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #388bfd; transition: width 0.3s ease; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        body { background-color: #f7f6f2; color: #374151; font-family: 'Inter', -apple-system, sans-serif; transition: background-color 0.3s; }
+        .tech-font { font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: -0.02em; }
+        .card { 
+            background-color: #ffffff; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 12px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        .card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-color: #d1d5db;
+        }
+        .wip-limit-exceeded { border: 2px solid #eab308 !important; background-color: #fefce8 !important; }
+        .stale-task { border-left: 4px solid #d1d5db !important; }
+        .progress-bar { height: 6px; background: #f3f4f6; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #9eadba; border-radius: 3px; }
+        
+        /* Morandi Palette */
+        .bg-todo { background-color: #b5c0c9; } /* Dusty Blue */
+        .bg-doing { background-color: #9eadba; } /* Morandi Blue */
+        .bg-done { background-color: #a8b5a2; } /* Sage Green */
+        
+        .list-container { background-color: #efede8; border-radius: 16px; padding: 12px; min-height: 500px; }
     </style>
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-6xl mx-auto">
         <!-- Header -->
-        <header class="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+        <header class="flex justify-between items-center mb-10 border-b border-gray-200 pb-6">
             <div>
-                <h1 class="text-3xl font-bold text-blue-400 tech-font">🐾 KANI MISSION CONTROL</h1>
-                <p class="text-gray-400">老闆金城武專屬 · 煉蠱貓戰鬥指揮部</p>
+                <h1 class="text-2xl font-semibold text-gray-800 tracking-tight flex items-center">
+                    <span class="mr-2">🐾</span> KANI MISSION CONTROL
+                </h1>
+                <p class="text-sm text-gray-500 font-light mt-1">老闆金城武專屬 · 禪意煉蠱指揮部</p>
             </div>
             <div class="text-right">
-                <div id="update-time" class="text-xs text-gray-500">LAST UPDATE: LOADING...</div>
-                <div class="text-green-500 text-sm font-mono tracking-widest uppercase">System Online</div>
+                <div id="update-time" class="text-[10px] text-gray-400 uppercase tracking-widest">Update: Loading...</div>
+                <div class="text-gray-400 text-xs mt-1 flex items-center justify-end">
+                    <span class="w-2 h-2 bg-green-400 rounded-full mr-2 opacity-75"></span>
+                    System Quiet
+                </div>
             </div>
         </header>
 
         <!-- Stats Bar -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div class="card p-6 flex items-center">
-                <div class="p-4 bg-green-900/30 rounded-full mr-4 text-green-500"><i class="fas fa-check-circle fa-2x"></i></div>
-                <div>
-                    <div class="text-sm text-gray-400 uppercase">Tasks Completed</div>
-                    <div class="text-2xl font-bold tech-font" id="done-count">0</div>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="card p-6 border-none shadow-sm">
+                <div class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Tasks Completed</div>
+                <div class="text-3xl font-light text-gray-800" id="done-count">0</div>
             </div>
-            <div class="card p-6 flex items-center">
-                <div class="p-4 bg-blue-900/30 rounded-full mr-4 text-blue-500"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
-                <div>
-                    <div class="text-sm text-gray-400 uppercase">In Progress</div>
-                    <div class="text-2xl font-bold tech-font" id="doing-count">0</div>
-                </div>
+            <div class="card p-6 border-none shadow-sm">
+                <div class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">In Progress</div>
+                <div class="text-3xl font-light text-gray-800" id="doing-count">0</div>
             </div>
-            <div class="card p-6 flex items-center">
-                <div class="p-4 bg-yellow-900/30 rounded-full mr-4 text-yellow-500"><i class="fas fa-rocket fa-2x"></i></div>
-                <div>
-                    <div class="text-sm text-gray-400 uppercase">Current Strategy</div>
-                    <div class="text-xl font-bold tech-font text-yellow-500">V5 煉蠱中</div>
-                </div>
+            <div class="card p-6 border-none shadow-sm">
+                <div class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Current Focus</div>
+                <div class="text-lg font-medium text-gray-600">V5.1 邏輯注入</div>
             </div>
         </div>
 
         <!-- Kanban Board -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- TODO -->
             <div>
-                <h2 class="text-xl font-bold mb-4 flex items-center text-red-400">
-                    <span class="w-3 h-3 bg-red-400 rounded-full mr-2"></span> TO-DO
+                <h2 class="text-sm font-semibold mb-4 flex items-center text-gray-500 tracking-widest uppercase">
+                    待處理 Todo
                 </h2>
-                <div id="todo-list" class="space-y-4 min-h-[200px] pb-20">
+                <div id="todo-list" class="list-container space-y-3">
                     <!-- Cards here -->
                 </div>
             </div>
             <!-- DOING -->
             <div>
-                <h2 class="text-xl font-bold mb-4 flex justify-between items-center text-blue-400">
-                    <span class="flex items-center">
-                        <span class="w-3 h-3 bg-blue-400 rounded-full mr-2"></span> IN PROGRESS
-                    </span>
-                    <span id="wip-status" class="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-400">WIP: 0/3</span>
+                <h2 class="text-sm font-semibold mb-4 flex justify-between items-center text-gray-500 tracking-widest uppercase">
+                    進行中 Doing
+                    <span id="wip-status" class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-white border border-gray-200">0/3</span>
                 </h2>
-                <div id="doing-list" class="space-y-4 min-h-[200px] pb-20 p-2 rounded transition-all">
+                <div id="doing-list" class="list-container space-y-3">
                     <!-- Cards here -->
                 </div>
             </div>
             <!-- DONE -->
             <div>
-                <h2 class="text-xl font-bold mb-4 flex items-center text-green-400">
-                    <span class="w-3 h-3 bg-green-400 rounded-full mr-2"></span> COMPLETED
+                <h2 class="text-sm font-semibold mb-4 flex items-center text-gray-500 tracking-widest uppercase">
+                    已完成 Done
                 </h2>
-                <div id="done-list" class="space-y-4 min-h-[200px] pb-20">
+                <div id="done-list" class="list-container space-y-3">
                     <!-- Cards here -->
                 </div>
             </div>
         </div>
 
-        <div id="auth-panel" class="mt-8 p-4 border border-gray-800 rounded text-xs text-gray-500">
-            <details>
-                <summary class="cursor-pointer hover:text-gray-300">🔐 Enable Write Sync (GitHub Token)</summary>
-                <div class="mt-2 flex gap-2">
-                    <input type="password" id="gh-token" placeholder="Enter GitHub PAT" class="bg-gray-900 border border-gray-700 px-2 py-1 rounded w-full text-gray-300">
-                    <button onclick="saveToken()" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500">Save</button>
-                </div>
-            </details>
-        </div>
+        <footer class="mt-16 text-center text-gray-400 text-xs font-light tracking-widest">
+            " 靜心煉蠱，順勢而為 " — Kani
+        </footer>
+    </div>
+
+    <div id="auth-panel" class="max-w-6xl mx-auto mt-12 p-6 border-t border-gray-200">
+        <details class="text-gray-400">
+            <summary class="cursor-pointer text-xs hover:text-gray-600 transition-colors uppercase tracking-widest">Access Configuration</summary>
+            <div class="mt-4 flex gap-3 max-w-sm">
+                <input type="password" id="gh-token" placeholder="GitHub PAT" class="bg-white border border-gray-200 px-3 py-2 rounded-lg text-xs w-full focus:outline-none focus:ring-1 focus:ring-gray-300">
+                <button onclick="saveToken()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-xs hover:bg-gray-700 transition-colors">Save</button>
+            </div>
+        </details>
+    </div>
 
         <footer class="mt-12 text-center text-gray-500 text-sm italic">
             "煉蠱是藝術，穩健是財富。喵！" — Kani
@@ -206,16 +222,28 @@
 
                     const card = document.createElement('div');
                     card.setAttribute('data-id', issue.number);
-                    card.className = `card p-4 hover:border-blue-500 transition-colors cursor-move relative group ${isStale && issue.state !== 'closed' ? 'stale-task' : ''}`;
+                    card.className = `card p-5 relative group ${isStale && issue.state !== 'closed' ? 'stale-task' : ''} cursor-move`;
+                    
+                    // Label mapping to Morandi colors
+                    const labelHtml = issue.labels.map(l => {
+                        let dotColor = '#d1d5db';
+                        if (l.name === 'in-progress') dotColor = '#9eadba';
+                        if (issue.state === 'closed') dotColor = '#a8b5a2';
+                        return `<span class="inline-flex items-center mr-2 text-[10px] text-gray-500 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full mr-1" style="background-color: ${dotColor}"></span>
+                            ${l.name}
+                        </span>`;
+                    }).join('') || `<span class="inline-flex items-center text-[10px] text-gray-400"><span class="w-1.5 h-1.5 rounded-full bg-gray-200 mr-1"></span>Task</span>`;
+
                     card.innerHTML = `
                         ${staleHtml}
-                        <div class="text-xs text-gray-500 mb-1 flex justify-between">
-                            <span>#${issue.number}</span>
-                            <i class="fas fa-grip-vertical opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-mono text-gray-300">#${issue.number}</span>
+                            <i class="fas fa-ellipsis-h text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                         </div>
-                        <div class="font-medium mb-2">${issue.title}</div>
-                        <div class="flex items-center text-[10px] uppercase tracking-tighter gap-1">
-                            ${issue.labels.map(l => `<span class="px-2 py-0.5 rounded-full bg-gray-800 text-gray-300" style="border: 1px solid #${l.color}44">${l.name}</span>`).join('') || '<span class="px-2 py-0.5 rounded-full bg-gray-800 text-gray-300">Task</span>'}
+                        <div class="text-sm font-medium text-gray-700 leading-snug mb-3">${issue.title}</div>
+                        <div class="flex flex-wrap items-center">
+                            ${labelHtml}
                         </div>
                         ${progressHtml}
                     `;
