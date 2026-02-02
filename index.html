@@ -176,6 +176,9 @@
             new Sortable(document.getElementById(id), {
                 group: 'kanban',
                 animation: 150,
+                delay: 150, // 增加延遲，區分滑動與拖拉
+                delayOnTouchOnly: true, // 延遲僅限觸控裝置
+                touchStartThreshold: 5, // 容許 5px 的手抖
                 onEnd: async (evt) => {
                     const issueNumber = evt.item.getAttribute('data-id');
                     const targetListId = evt.to.id;
