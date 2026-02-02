@@ -148,15 +148,24 @@
             }
         }
 
-        async function updateIssue(issueNumber, newState, labels) {
+        async function updateIssue(issueNumber, newState) {
             if (!ghToken) return;
             try {
+                // 先獲取目前的 Issue 資訊以取得現有標籤
+                const res = await fetch(`https://api.github.com/repos/${REPO}/issues/${issueNumber}`, {
+                    headers: { 'Authorization': `token ${ghToken}` }
+                });
+                const issue = await res.json();
+                let currentLabels = issue.labels.map(l => l.name);
+                
                 const body = { state: newState === 'done' ? 'closed' : 'open' };
+                
                 if (newState === 'doing') {
-                    body.labels = ['in-progress'];
-                } else if (newState === 'todo') {
-                    body.labels = []; // Clear in-progress
+                    if (!currentLabels.includes('in-progress')) currentLabels.push('in-progress');
+                } else {
+                    currentLabels = currentLabels.filter(l => l !== 'in-progress');
                 }
+                body.labels = currentLabels;
                 
                 await fetch(`https://api.github.com/repos/${REPO}/issues/${issueNumber}`, {
                     method: 'PATCH',
