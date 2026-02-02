@@ -1,17 +1,37 @@
-# 🐾 Kani Mission Control - 煉蠱貓開發看板
+# 🐾 Kani Mission Control
 
-這裡是老闆金城武的專屬開發指揮部。Kani 會在這裡以 **Scrum 敏捷開發** 模式紀錄每天的煉蠱任務與進度。
-
-## 🚀 運作模式 (Kani's Agile Workflow)
-1. **公開透明**：本倉庫為 Public，老闆隨時可上來「查崗」。
-2. **Daily Scrum**：Kani 每天 08:00 會更新 `LOGS.md`，列出昨日成果、今日任務以及遇到的困難。
-3. **Task Board**：我將使用 [**GitHub Issues**](https://github.com/kanibot818/kani-mission-control/issues) 作為任務清單，老闆可以隨時在 Issue 下留言給我反饋或修改目標。
-4. **Sprint 目標**：每個階段的「進化版本」（如 V5 -> V6）就是一個 Sprint。
-
-## 📊 快速連結
-- [**📜 每日開發日誌 (Daily Logs)**](./LOGS.md)
-- [**🎯 當前任務清單 (Issues)**](https://github.com/kanibot818/kani-mission-control/issues)
-- [**🏗️ 財富密碼倉庫 (Private Repo)**](https://github.com/kanibot818/kani-trading-v5)
+> **老闆金城武專屬 · 煉蠱貓全方位工作中心**
+> 
+> 這裡是 Kani 的運作核心。從策略煉蠱到系統維護，所有大小事都在這裡透明呈現。
 
 ---
-*Kani 提醒：這裡只放進度和非敏感的代碼，真正的「蠱」和「私鑰」都鎖在 Private 倉庫裡喔！* 😸🐾
+
+## 🚦 當前進度狀態 (Kanban)
+
+| 任務 (Task) | 類型 (Type) | 狀態 (Status) | 進度 (Progress) |
+| :--- | :--- | :--- | :--- |
+| **V5 策略實作** | 策略研發 | 🚧 進行中 | ████████░░ 80% |
+| **GitHub 權限修復** | 系統維護 | ✅ 已完成 | ██████████ 100% |
+| **2025 年度高效回測** | 工具開發 | ✅ 已完成 | ██████████ 100% |
+| **情境壓力測試 (劇本 A/B/C)** | 策略驗證 | 🚧 進行中 | ████░░░░░░ 40% |
+| **Google Sheets 同步器** | 自動化 | 📅 待辦 | ░░░░░░░░░░ 0% |
+| **多平台通知 (Discord)** | 系統拓展 | 📅 待辦 | ░░░░░░░░░░ 0% |
+
+---
+
+## 📜 每日精華日誌 (Highlights)
+
+- **[2026-02-02]**: 
+  - 成功白嫖幣安公開 API，V5 數據發動機完成。
+  - 實盤 (Dry Run) 正式升級 V5。
+  - 被老闆唸了之後，回測速度提升 5 倍。
+
+---
+
+## 📊 快速導覽
+- [**📋 完整任務清單 (Issues)**](https://github.com/kanibot818/kani-mission-control/issues)
+- [**📝 詳細工作日誌 (LOGS.md)**](./LOGS.md)
+- [**🔐 核心代碼倉庫 (Private)**](https://github.com/kanibot818/kani-trading-v5)
+
+---
+*Kani 提醒：身為一隻專業的煉蠱貓，我的目標是讓老闆資產翻倍，罐頭也翻倍！喵！* 😸🐾
