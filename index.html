@@ -179,6 +179,7 @@
                 delay: 150, // 增加延遲，區分滑動與拖拉
                 delayOnTouchOnly: true, // 延遲僅限觸控裝置
                 touchStartThreshold: 5, // 容許 5px 的手抖
+                onStart: () => { clearInterval(autoRefreshInterval); }, // 拖拉時暫停自動重新整理
                 onEnd: async (evt) => {
                     const issueNumber = evt.item.getAttribute('data-id');
                     const targetListId = evt.to.id;
@@ -186,13 +187,21 @@
                     if (evt.from !== evt.to) {
                         await updateIssue(issueNumber, newState);
                     }
+                    startAutoRefresh(); // 結束後恢復自動重新整理
                 }
             });
         }
 
+        let autoRefreshInterval;
+        function startAutoRefresh() {
+            clearInterval(autoRefreshInterval);
+            autoRefreshInterval = setInterval(fetchIssues, 60000); // 每一分鐘自動刷新
+        }
+        
         async function fetchIssues() {
             try {
-                const response = await fetch(`https://api.github.com/repos/${REPO}/issues?state=all&per_page=100`);
+                // ... (原有 fetch 邏輯不變，但增加一個正在刷新的提示)
+                const response = await fetch(`https://api.github.com/repos/${REPO}/issues?state=all&per_page=100&t=${Date.now()}`);
                 const issues = await response.json();
                 
                 const lists = {
@@ -295,6 +304,8 @@
                 initSortable('todo-list', 'todo');
                 initSortable('doing-list', 'doing');
                 initSortable('done-list', 'done');
+                
+                startAutoRefresh(); // 啟動自動刷新
                 
             } catch (err) {
                 console.error('Failed to fetch issues:', err);
