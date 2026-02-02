@@ -44,7 +44,6 @@
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-[1600px] mx-auto">
-        <!-- Header -->
         <header class="flex justify-between items-center mb-10 border-b border-gray-200 pb-6">
             <div>
                 <h1 class="text-2xl font-semibold text-gray-800 tracking-tight flex items-center">
@@ -61,7 +60,6 @@
             </div>
         </header>
 
-        <!-- Stats Bar -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div class="card p-6 border-none shadow-sm">
                 <div class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Tasks Completed</div>
@@ -77,29 +75,24 @@
             </div>
         </div>
 
-        <!-- Kanban Board -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <!-- TODO -->
             <div>
-                <h2 class="text-sm font-semibold mb-4 flex items-center text-gray-500 tracking-widest uppercase">待處理 Todo</h2>
+                <h2 class="text-sm font-semibold mb-4 text-gray-500 tracking-widest uppercase">Todo 待處理</h2>
                 <div id="todo-list" class="list-container space-y-3"></div>
             </div>
-            <!-- DOING -->
             <div>
                 <h2 class="text-sm font-semibold mb-4 flex justify-between items-center text-gray-500 tracking-widest uppercase">
-                    進行中 Doing
+                    Doing 進行中
                     <span id="wip-status" class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-white border border-gray-200">0/3</span>
                 </h2>
                 <div id="doing-list" class="list-container space-y-3"></div>
             </div>
-            <!-- DONE -->
             <div>
-                <h2 class="text-sm font-semibold mb-4 flex items-center text-gray-500 tracking-widest uppercase">已完成 Done</h2>
+                <h2 class="text-sm font-semibold mb-4 text-gray-500 tracking-widest uppercase">Done 已完成</h2>
                 <div id="done-list" class="list-container space-y-3"></div>
             </div>
-            <!-- DROPPED -->
             <div>
-                <h2 class="text-sm font-semibold mb-4 flex items-center text-gray-400 tracking-widest uppercase">擱置 Dropped</h2>
+                <h2 class="text-sm font-semibold mb-4 text-gray-400 tracking-widest uppercase">Dropped 擱置</h2>
                 <div id="dropped-list" class="list-container space-y-3"></div>
             </div>
         </div>
@@ -128,7 +121,7 @@
             if (val) {
                 localStorage.setItem('gh_token', val);
                 ghToken = val;
-                alert('Token saved! Re-sync enabled.');
+                alert('Token saved!');
                 location.reload();
             }
         }
@@ -141,9 +134,7 @@
                 });
                 const issue = await res.json();
                 let currentLabels = issue.labels.map(l => l.name);
-                
                 const body = { state: (newState === 'done' || newState === 'dropped') ? 'closed' : 'open' };
-                
                 if (newState === 'doing') {
                     if (!currentLabels.includes('in-progress')) currentLabels.push('in-progress');
                     currentLabels = currentLabels.filter(l => l !== 'dropped');
@@ -154,25 +145,17 @@
                     currentLabels = currentLabels.filter(l => l !== 'in-progress' && l !== 'dropped');
                 }
                 body.labels = currentLabels;
-                
                 await fetch(`https://api.github.com/repos/${REPO}/issues/${issueNumber}`, {
                     method: 'PATCH',
-                    headers: {
-                        'Authorization': `token ${ghToken}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    },
+                    headers: { 'Authorization': `token ${ghToken}`, 'Accept': 'application/vnd.github.v3+json' },
                     body: JSON.stringify(body)
                 });
-            } catch (err) { console.error('Sync failed:', err); }
+            } catch (err) { console.error(err); }
         }
 
         function initSortable(id) {
             new Sortable(document.getElementById(id), {
-                group: 'kanban',
-                animation: 150,
-                delay: 150,
-                delayOnTouchOnly: true,
-                touchStartThreshold: 5,
+                group: 'kanban', animation: 150, delay: 150, delayOnTouchOnly: true, touchStartThreshold: 5,
                 onStart: () => clearInterval(autoRefreshInterval),
                 onEnd: async (evt) => {
                     const issueNumber = evt.item.getAttribute('data-id');
@@ -205,19 +188,29 @@
                     const tasks = issue.body ? issue.body.match(/\[[ xX]\]/g) || [] : [];
                     const completed = tasks.filter(t => t.toLowerCase() === '[x]').length;
                     const progress = tasks.length > 0 ? (completed / tasks.length) * 100 : 0;
-                    const progressHtml = tasks.length > 0 ? `<div class="mt-3"><div class="flex justify-between text-[10px] text-gray-500 mb-1"><span>Checklist</span><span>${completed}/${tasks.length}</span></div><div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div></div>` : '';
+                    const progressHtml = tasks.length > 0 ? `<div class="mt-3"><div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div><div class="text-[9px] text-gray-400 mt-1 text-right">${completed}/${tasks.length}</div></div>` : '';
                     const isStale = (now - new Date(issue.updated_at)) > 24 * 60 * 60 * 1000;
-                    const staleHtml = isStale && issue.state !== 'closed' ? `<div class="absolute -top-2 -right-2 bg-yellow-600 text-white text-[10px] px-1.5 py-0.5 rounded-full shadow-lg"><i class="fas fa-hourglass-half"></i></div>` : '';
+                    const staleHtml = isStale && issue.state !== 'closed' ? `<div class="absolute -top-1 -right-1 bg-yellow-500 w-2 h-2 rounded-full shadow-sm"></div>` : '';
+
+                    const isDropped = issue.labels.some(l => l.name === 'dropped');
+                    const labelHtml = issue.labels
+                        .filter(l => (issue.state === 'closed' || isDropped) ? (l.name !== 'in-progress' && l.name !== 'dropped') : true)
+                        .map(l => {
+                            let dotColor = '#d1d5db'; let bgColor = '#f3f4f6'; let textColor = '#6b7280';
+                            if (l.name.includes('Alchemy')) { dotColor = '#a189bd'; bgColor = '#f5f3f7'; textColor = '#7c6a96'; }
+                            else if (l.name.includes('Automation')) { dotColor = '#e2b55a'; bgColor = '#fdfaf2'; textColor = '#9c7d3e'; }
+                            else if (l.name.includes('Ops')) { dotColor = '#8fa3a3'; bgColor = '#f2f4f4'; textColor = '#627070'; }
+                            else if (l.name.includes('Insight')) { dotColor = '#d4a5a5'; bgColor = '#faf5f5'; textColor = '#947272'; }
+                            else if (l.name === 'in-progress') { dotColor = '#9eadba'; bgColor = '#f4f6f8'; textColor = '#6b7d8c'; }
+                            return `<span class="inline-flex items-center px-1.5 py-0.5 rounded mr-1.5 mb-1 text-[9px] font-medium" style="background-color: ${bgColor}; color: ${textColor}"><span class="w-1 h-1 rounded-full mr-1" style="background-color: ${dotColor}"></span>${l.name.replace('Category: ', '')}</span>`;
+                        }).join('');
+
+                    const statusTag = isDropped ? `<span class="text-[9px] text-gray-400 font-bold mr-2 uppercase tracking-tighter">DROPPED</span>` : (issue.state === 'closed' ? `<span class="text-[9px] text-[#a8b5a2] font-bold mr-2 uppercase tracking-tighter">DONE</span>` : '');
 
                     const card = document.createElement('div');
                     card.setAttribute('data-id', issue.number);
                     card.className = `card p-5 relative group ${isStale && issue.state !== 'closed' ? 'stale-task' : ''} cursor-move`;
-                    
-                    const isDropped = issue.labels.some(l => l.name === 'dropped');
-                    const labelHtml = issue.labels.filter(l => (issue.state === 'closed' || isDropped) ? (l.name !== 'in-progress' && l.name !== 'dropped') : true).map(l => `<span class="inline-flex items-center mr-2 text-[10px] text-gray-500 font-medium"><span class="w-1.5 h-1.5 rounded-full mr-1" style="background-color: ${l.name === 'in-progress' ? '#9eadba' : '#d1d5db'}"></span>${l.name}</span>`).join('');
-                    const statusTag = isDropped ? `<span class="inline-flex items-center mr-2 text-[10px] text-gray-400 font-semibold"><i class="fas fa-trash-alt mr-1"></i>DROPPED</span>` : (issue.state === 'closed' ? `<span class="inline-flex items-center mr-2 text-[10px] text-[#a8b5a2] font-semibold"><i class="fas fa-check-circle mr-1"></i>COMPLETED</span>` : '');
-
-                    card.innerHTML = `${staleHtml}<div class="flex justify-between items-start mb-3"><span class="text-[10px] font-mono text-gray-300">#${issue.number}</span></div><div class="text-sm font-medium text-gray-700 leading-snug mb-3">${issue.title}</div><div class="flex flex-wrap items-center">${statusTag}${labelHtml}</div>${progressHtml}`;
+                    card.innerHTML = `${staleHtml}<div class="text-[9px] font-mono text-gray-300 mb-2">#${issue.number}</div><div class="text-sm font-medium text-gray-700 leading-snug mb-3">${issue.title}</div><div class="flex flex-wrap items-center">${statusTag}${labelHtml}</div>${progressHtml}`;
                     
                     if (isDropped) { lists.dropped.appendChild(card); counts.dropped++; }
                     else if (issue.state === 'closed') { lists.done.appendChild(card); counts.done++; }
