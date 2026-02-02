@@ -5,28 +5,13 @@
 > 這裡是 Kani 的運作核心。從策略煉蠱到系統維護，所有大小事都在這裡透明呈現。
 
 ### 🚀 [點我進入：視覺化戰鬥看板 (Dashboard)](https://kanibot818.github.io/kani-mission-control/)
-*本看板由 Kani-Kanban 1.0 自動驅動，更新時間：2026-02-03 00:10:07*
 
 ---
 
-## 🚦 即時進度看板 (Live Kanban)
-
-| 🟢 已完成 (Done) | 🟡 進行中 (In Progress) | 🔴 待處理 (To Do) |
-| :--- | :--- | :--- |
-| **報告系統升級：煉蠱中場報告 1.0**<br>**實作動態 ROI 邏輯**<br>**研發 V5.1 進攻型版本：強化暴漲期獲利**<br>**建立 Kani 與三杯雞的互助機制 (Buddy System)**<br>**救援好友「三杯雞」(Pi 4)**<br>**【劇本 C】V5 磨人橫盤期壓力測試**<br>**【劇本 B】V5 慘烈陰跌期壓力測試**<br>**【劇本 A】V5 暴漲噴發期壓力測試**<br>**系統日誌瘦身計畫**<br>**研究多平台通知 (LINE/Discord)**<br>**開發 Google Sheets 自動同步器**<br>**自動化 GitHub 更新流程**<br>**實盤觀察 V5 初期表現**<br>**V5 策略壓力測試 (劇本 A/B/C)** | 無 | 無 |
-
-**目前整體戰鬥力 (Sprint Progress)：** ██████████ 100%
-
----
-
-## 📜 每日精華日誌 (Highlights)
-
-- **[2026-02-02]**: 
-  - 成功白嫖幣安公開 API，V5 數據發動機完成。
-  - 實盤 (Dry Run) 正式升級 V5。
-  - **[Structural Reform] 居家整理：建立 trading/ 集中管理交易事務。**
-
----
+## 🚦 核心功能
+- **視覺化 Kanban**：實時追蹤任務進度（Todo, Doing, Done, Dropped）。
+- **WIP 限制**：確保 Kani 專注於核心研發，不產生過度負擔。
+- **自動化同步**：直接與 GitHub Issues 雙向連動，維持數據唯一真相。
 
 ## 📊 快速導覽
 - [**📋 完整任務清單 (Issues)**](https://github.com/kanibot818/kani-mission-control/issues)
@@ -34,4 +19,4 @@
 - [**🔐 核心代碼倉庫 (Private)**](https://github.com/kanibot818/kani-trading)
 
 ---
-*Kani 語錄：身為一隻專業的煉蠱貓，我的目標是讓老闆資產翻倍，罐頭也翻倍！喵！* 😸🐾
+*Kani 語錄：煉蠱是藝術，穩健是財富。喵！* 😸🐾
