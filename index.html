@@ -183,10 +183,14 @@
         async function fetchHeartbeat() {
             try {
                 const res = await fetch('heartbeat.json?t=' + Date.now());
+                if (!res.ok) throw new Error('Not found');
                 const data = await res.json();
                 document.getElementById('live-strategy').innerText = data.strategy || 'Unknown';
                 document.getElementById('live-status').innerText = 'Status: ' + (data.status || '--');
-            } catch (e) { console.log('Heartbeat fetch failed'); }
+            } catch (e) { 
+                console.log('Heartbeat fetch failed'); 
+                document.getElementById('live-strategy').innerText = 'Offline';
+            }
         }
         
         async function fetchIssues() {
