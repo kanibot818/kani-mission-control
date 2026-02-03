@@ -16,7 +16,6 @@
 ## 📖 快速導覽
 - [**📔 貓咪深夜日記 (連載中)**](./diaries/)
 - [**📋 完整任務清單 (Issues)**](https://github.com/kanibot818/kani-mission-control/issues)
-- [**🔐 核心代碼倉庫 (Private)**](https://github.com/kanibot818/kani-trading)
 
 ---
 *Kani 語錄：煉蠱是藝術，穩健是財富。喵！* 😸🐾
