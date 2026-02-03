@@ -203,10 +203,39 @@
 
                 issues.forEach(issue => {
                     if (issue.pull_request) return;
-                    const tasks = issue.body ? issue.body.match(/\[[ xX]\]/g) || [] : [];
-                    const completed = tasks.filter(t => t.toLowerCase() === '[x]').length;
-                    const progress = tasks.length > 0 ? (completed / tasks.length) * 100 : 0;
-                    const progressHtml = tasks.length > 0 ? `<div class="mt-3"><div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div><div class="text-[9px] text-gray-400 mt-1 text-right">${completed}/${tasks.length}</div></div>` : '';
+                    
+                    // 1. Parse Checklist Items
+                    const taskLines = issue.body ? issue.body.match(/- \[[ xX]\].*$/gm) || [] : [];
+                    const completedCount = taskLines.filter(t => t.toLowerCase().includes('[x]')).length;
+                    const progress = taskLines.length > 0 ? (completedCount / taskLines.length) * 100 : 0;
+                    
+                    let checklistHtml = '';
+                    if (taskLines.length > 0) {
+                        const items = taskLines.map(line => {
+                            const isDone = line.toLowerCase().includes('[x]');
+                            const text = line.replace(/- \[[ xX]\]/, '').trim();
+                            return `<div class="flex items-start mb-1 ${isDone ? 'opacity-40 line-through' : ''}">
+                                <span class="mr-2 text-[10px]">${isDone ? '●' : '○'}</span>
+                                <span class="text-[10px] leading-tight text-gray-500">${text}</span>
+                            </div>`;
+                        }).join('');
+
+                        checklistHtml = `
+                            <div class="mt-3 pt-3 border-t border-gray-100">
+                                <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                                <details class="mt-2 group">
+                                    <summary class="list-none cursor-pointer flex justify-between items-center text-[9px] text-gray-400 hover:text-gray-600 transition-colors uppercase tracking-widest">
+                                        <span>Checklist (${completedCount}/${taskLines.length})</span>
+                                        <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                                    </summary>
+                                    <div class="mt-2 pl-1 max-h-32 overflow-y-auto scrollbar-thin">
+                                        ${items}
+                                    </div>
+                                </details>
+                            </div>
+                        `;
+                    }
+
                     const isStale = (now - new Date(issue.updated_at)) > 24 * 60 * 60 * 1000;
                     const staleHtml = isStale && issue.state !== 'closed' ? `<div class="absolute -top-1 -right-1 bg-yellow-500 w-2 h-2 rounded-full shadow-sm"></div>` : '';
 
@@ -228,7 +257,7 @@
                     const card = document.createElement('div');
                     card.setAttribute('data-id', issue.number);
                     card.className = `card p-5 relative group ${isStale && issue.state !== 'closed' ? 'stale-task' : ''} cursor-move`;
-                    card.innerHTML = `${staleHtml}<div class="text-[9px] font-mono text-gray-300 mb-2">#${issue.number}</div><div class="text-sm font-medium text-gray-700 leading-snug mb-3">${issue.title}</div><div class="flex flex-wrap items-center">${statusTag}${labelHtml}</div>${progressHtml}`;
+                    card.innerHTML = `${staleHtml}<div class="text-[9px] font-mono text-gray-300 mb-2">#${issue.number}</div><div class="text-sm font-medium text-gray-700 leading-snug mb-3">${issue.title}</div><div class="flex flex-wrap items-center">${statusTag}${labelHtml}</div>${checklistHtml}`;
                     
                     if (isDropped) { lists.dropped.appendChild(card); counts.dropped++; }
                     else if (issue.state === 'closed') { lists.done.appendChild(card); counts.done++; }
