@@ -182,7 +182,8 @@
 
         async function fetchHeartbeat() {
             try {
-                const res = await fetch('heartbeat.json?t=' + Date.now());
+                // 從專屬的 live-status 分支抓取最新數據，避免弄髒 main 歷史
+                const res = await fetch('https://raw.githubusercontent.com/kanibot818/kani-mission-control/live-status/heartbeat.json?t=' + Date.now());
                 if (!res.ok) throw new Error('Not found');
                 const data = await res.json();
                 document.getElementById('live-strategy').innerText = data.strategy || 'Unknown';
