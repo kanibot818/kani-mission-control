@@ -60,7 +60,7 @@
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
             <div class="card p-6 border-none shadow-sm">
                 <div class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Tasks Completed</div>
                 <div class="text-3xl font-light text-gray-800" id="done-count">0</div>
@@ -70,8 +70,16 @@
                 <div class="text-3xl font-light text-gray-800" id="doing-count">0</div>
             </div>
             <div class="card p-6 border-none shadow-sm">
-                <div class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Current Focus</div>
-                <div class="text-lg font-medium text-gray-600">V5.1 實盤煉蠱中</div>
+                <div class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Live Strategy</div>
+                <div class="text-lg font-medium text-gray-600" id="live-strategy">V5.1 進攻型</div>
+                <div class="text-[9px] text-gray-400 mt-1 uppercase tracking-tighter" id="live-status">Status: Running</div>
+            </div>
+            <div class="card p-6 border-none shadow-sm">
+                <div class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Kani Energy</div>
+                <div class="flex items-center mt-2">
+                    <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                    <span class="text-xs font-medium text-gray-600">Proactive Mode ON</span>
+                </div>
             </div>
         </div>
 
@@ -171,8 +179,18 @@
             clearInterval(autoRefreshInterval);
             autoRefreshInterval = setInterval(fetchIssues, 60000);
         }
+
+        async function fetchHeartbeat() {
+            try {
+                const res = await fetch('heartbeat.json?t=' + Date.now());
+                const data = await res.json();
+                document.getElementById('live-strategy').innerText = data.strategy || 'Unknown';
+                document.getElementById('live-status').innerText = 'Status: ' + (data.status || '--');
+            } catch (e) { console.log('Heartbeat fetch failed'); }
+        }
         
         async function fetchIssues() {
+            fetchHeartbeat();
             try {
                 const response = await fetch(`https://api.github.com/repos/${REPO}/issues?state=all&per_page=100&t=${Date.now()}`);
                 const issues = await response.json();
